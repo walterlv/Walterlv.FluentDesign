@@ -1,26 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
     <PropertyGroup>
-        <TargetFramework>net45</TargetFramework>
-        <LanguageTargets>$(MSBuildToolsPath)\Microsoft.CSharp.targets</LanguageTargets>
+        <TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
+        <UseWpf>True</UseWpf>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Reference Include="PresentationCore" />
-        <Reference Include="PresentationFramework" />
-        <Reference Include="System.Xaml" />
-        <Reference Include="WindowsBase" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Page Include="**\*.xaml" Exclude="App.xaml" SubType="Designer" Generator="MSBuild:Compile" />
-        <Compile Update="**\*.xaml.cs" DependentUpon="%(Filename)" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Themes\Window.Universal.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </None>
-    </ItemGroup>
 
 </Project>
