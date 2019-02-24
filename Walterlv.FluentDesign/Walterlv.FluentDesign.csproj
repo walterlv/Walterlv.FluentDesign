@@ -9,4 +9,11 @@
         <Version>0.1.0-alpha</Version>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="dotnetCampus.SourceYard" Version="0.1.7213-alpha">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
 </Project>
