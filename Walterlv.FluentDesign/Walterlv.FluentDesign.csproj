@@ -3,6 +3,10 @@
     <PropertyGroup>
         <TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
         <UseWpf>True</UseWpf>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>walterlv</Authors>
+        <Company>dotnet Campus</Company>
+        <Version>0.1.0-alpha</Version>
     </PropertyGroup>
 
 </Project>

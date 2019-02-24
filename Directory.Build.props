@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)</PackageOutputPath>
+  </PropertyGroup>
+</Project>
