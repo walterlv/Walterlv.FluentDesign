@@ -36,7 +36,7 @@ namespace Walterlv.Effects
         /// </summary>
         public static bool GetIsEnabled(DependencyObject element)
         {
-            return (bool) element.GetValue(IsEnabledProperty);
+            return (bool)element.GetValue(IsEnabledProperty);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Walterlv.Effects
         /// </summary>
         public static TiltEffect2D GetTiltEffect(DependencyObject element)
         {
-            return (TiltEffect2D) element.GetValue(IsEnabledProperty);
+            return (TiltEffect2D)element.GetValue(IsEnabledProperty);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Walterlv.Effects
         {
             if (d is FrameworkElement element)
             {
-                var oldEffect = (TiltEffect2D) d.GetValue(TiltEffectProperty);
+                var oldEffect = (TiltEffect2D)d.GetValue(TiltEffectProperty);
 
                 if (e.OldValue is true)
                 {
@@ -84,9 +84,9 @@ namespace Walterlv.Effects
 
                 if (e.NewValue is true)
                 {
-                    var newEffect = new TiltEffect2D();
+                    var newEffect = new TiltEffect2D(element);
                     d.SetValue(TiltEffectProperty, newEffect);
-                    newEffect.Enable(element);
+                    newEffect.Enable();
                 }
             }
         }
@@ -103,7 +103,7 @@ namespace Walterlv.Effects
                 if (e.NewValue is TiltEffect2D newEffect)
                 {
                     d.SetValue(IsEnabledProperty, true);
-                    newEffect.Enable(element);
+                    newEffect.Enable();
                 }
             }
         }
@@ -111,11 +111,23 @@ namespace Walterlv.Effects
         /// <summary>
         /// 创建 <see cref="TiltEffect2D"/> 的新实例。
         /// </summary>
+#pragma warning disable CS8618 // 未初始化不可以为 null 的字段。
         public TiltEffect2D()
+#pragma warning restore CS8618 // 未初始化不可以为 null 的字段。
         {
             _downHandler = OnMouseLeftButtonDown;
             _upHandler = OnMouseLeftButtonUp;
             _leaveHandler = OnMouseLeave;
+        }
+
+        /// <summary>
+        /// 创建 <see cref="TiltEffect2D"/> 的新实例。
+        /// </summary>
+        public TiltEffect2D(FrameworkElement element) : this()
+        {
+            _target = element;
+            _tiltDownStoryboard = new Lazy<Storyboard>(() => CreateTiltStoryboard(element, true));
+            _tiltUpStoryboard = new Lazy<Storyboard>(() => CreateTiltStoryboard(element, false));
         }
 
         private readonly MouseButtonEventHandler _downHandler;
@@ -133,7 +145,7 @@ namespace Walterlv.Effects
         /// 同一父子链下的元素通过此依赖对象获取 <see cref="IsTiltingProperty"/> 属性时可拿到同一个值。
         /// 这可以避免带有嵌套倾斜的元素出现多重倾斜效果。
         /// </summary>
-        private DependencyObject _currentRoot;
+        private DependencyObject? _currentRoot;
 
         /// <summary>
         /// 获取或设置按下时倾斜动画播放的时长。
@@ -155,16 +167,11 @@ namespace Walterlv.Effects
         /// <summary>
         /// 开启倾斜效果。
         /// </summary>
-        private void Enable(FrameworkElement element)
+        private void Enable()
         {
-            _target = element;
-
-            _tiltDownStoryboard = new Lazy<Storyboard>(() => CreateTiltStoryboard(element, true));
-            _tiltUpStoryboard = new Lazy<Storyboard>(() => CreateTiltStoryboard(element, false));
-
-            element.AddHandler(UIElement.MouseLeftButtonDownEvent, _downHandler, true);
-            element.AddHandler(UIElement.MouseLeftButtonUpEvent, _upHandler, true);
-            element.AddHandler(UIElement.MouseLeaveEvent, _leaveHandler, true);
+            _target.AddHandler(UIElement.MouseLeftButtonDownEvent, _downHandler, true);
+            _target.AddHandler(UIElement.MouseLeftButtonUpEvent, _upHandler, true);
+            _target.AddHandler(UIElement.MouseLeaveEvent, _leaveHandler, true);
         }
 
         /// <summary>
@@ -172,14 +179,9 @@ namespace Walterlv.Effects
         /// </summary>
         private void Disable()
         {
-            _tiltDownStoryboard = null;
-            _tiltUpStoryboard = null;
-            if (_target is FrameworkElement element)
-            {
-                element.RemoveHandler(UIElement.MouseLeftButtonDownEvent, _downHandler);
-                element.RemoveHandler(UIElement.MouseLeftButtonUpEvent, _upHandler);
-                element.RemoveHandler(UIElement.MouseLeaveEvent, _leaveHandler);
-            }
+            _target.RemoveHandler(UIElement.MouseLeftButtonDownEvent, _downHandler);
+            _target.RemoveHandler(UIElement.MouseLeftButtonUpEvent, _upHandler);
+            _target.RemoveHandler(UIElement.MouseLeaveEvent, _leaveHandler);
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

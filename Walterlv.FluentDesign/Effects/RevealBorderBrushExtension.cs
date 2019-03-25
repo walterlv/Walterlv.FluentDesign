@@ -36,7 +36,7 @@ namespace Walterlv.Effects
 
         public double Radius { get; set; } = 100.0;
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
+        public override object? ProvideValue(IServiceProvider serviceProvider)
         {
             // 如果没有服务，则直接返回。
             if (!(serviceProvider.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget service)) return null;
@@ -110,7 +110,6 @@ namespace Walterlv.Effects
 
         private void UpdateBrush(RadialGradientBrush brush, Point origin)
         {
-            IInputElement element;
             if (IsUsingMouseOrStylus())
             {
                 brush.GradientOrigin = origin;

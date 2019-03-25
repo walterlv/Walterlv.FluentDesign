@@ -1,19 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-    <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
-        <UseWpf>True</UseWpf>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Authors>walterlv</Authors>
-        <Company>dotnet Campus</Company>
-        <Version>0.2.0-alpha</Version>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
+    <UseWpf>True</UseWpf>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>walterlv</Authors>
+    <Company>dotnet-campus</Company>
+    <Version>0.2.0-alpha</Version>
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
+    <WarningsAsErrors>$(WarningsAsErrors);CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="dotnetCampus.SourceYard" Version="0.1.7213-alpha">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="dotnetCampus.SourceYard" Version="0.1.7213-alpha">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>
