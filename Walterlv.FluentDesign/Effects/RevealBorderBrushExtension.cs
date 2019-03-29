@@ -1,17 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace Walterlv.FluentDesign.Effects
+// ReSharper disable CheckNamespace
+
+namespace Walterlv.Effects
 {
     /// <summary>
     /// Paints a control border with a reveal effect using composition brush and light effects.
     /// </summary>
     public class RevealBorderBrushExtension : MarkupExtension
     {
+        [ThreadStatic]
+        private static Dictionary<RadialGradientBrush, WeakReference<FrameworkElement>> _globalRevealingElements;
+
         /// <summary>
         /// The color to use for rendering in case the <see cref="MarkupExtension"/> can't work correctly.
         /// </summary>
@@ -39,13 +45,84 @@ namespace Walterlv.FluentDesign.Effects
             if (!(service.TargetObject is FrameworkElement element)) return this;
             if (DesignerProperties.GetIsInDesignMode(element)) return new SolidColorBrush(FallbackColor);
 
-            var window = Window.GetWindow(element);
-            if (window == null) return this;
-            var brush = CreateBrush(window, element);
+            var brush = CreateGlobalBrush(element);
             return brush;
         }
 
-        private Brush CreateBrush(Window window, FrameworkElement element)
+        private Brush CreateBrush(UIElement rootVisual, FrameworkElement element)
+        {
+            var brush = CreateRadialGradientBrush();
+            rootVisual.MouseMove += OnMouseMove;
+            return brush;
+
+            void OnMouseMove(object sender, MouseEventArgs e)
+            {
+                UpdateBrush(brush, e.GetPosition(element));
+            }
+        }
+
+        private Brush CreateGlobalBrush(FrameworkElement element)
+        {
+            var brush = CreateRadialGradientBrush();
+            if (_globalRevealingElements is null)
+            {
+                CompositionTarget.Rendering -= OnRendering;
+                CompositionTarget.Rendering += OnRendering;
+                _globalRevealingElements = new Dictionary<RadialGradientBrush, WeakReference<FrameworkElement>>();
+            }
+
+            _globalRevealingElements.Add(brush, new WeakReference<FrameworkElement>(element));
+            return brush;
+        }
+
+        private void OnRendering(object sender, EventArgs e)
+        {
+            if (_globalRevealingElements is null)
+            {
+                return;
+            }
+
+            var toCollect = new List<RadialGradientBrush>();
+            foreach (var pair in _globalRevealingElements)
+            {
+                var brush = pair.Key;
+                var weak = pair.Value;
+                if (weak.TryGetTarget(out var element))
+                {
+                    Reveal(brush, element);
+                }
+                else
+                {
+                    toCollect.Add(brush);
+                }
+            }
+
+            foreach (var brush in toCollect)
+            {
+                _globalRevealingElements.Remove(brush);
+            }
+
+            void Reveal(RadialGradientBrush brush, IInputElement element)
+            {
+                UpdateBrush(brush, Mouse.GetPosition(element));
+            }
+        }
+
+        private void UpdateBrush(RadialGradientBrush brush, Point origin)
+        {
+            IInputElement element;
+            if (IsUsingMouseOrStylus())
+            {
+                brush.GradientOrigin = origin;
+                brush.Center = origin;
+            }
+            else
+            {
+                brush.Center = new Point(double.NegativeInfinity, double.NegativeInfinity);
+            }
+        }
+
+        private RadialGradientBrush CreateRadialGradientBrush()
         {
             var brush = new RadialGradientBrush(Color, Colors.Transparent)
             {
@@ -57,22 +134,23 @@ namespace Walterlv.FluentDesign.Effects
                 RelativeTransform = RelativeTransform,
                 Center = new Point(double.NegativeInfinity, double.NegativeInfinity),
             };
-            window.MouseMove += OnMouseMove;
-            window.Closed += OnClosed;
             return brush;
+        }
 
-            void OnMouseMove(object sender, MouseEventArgs e)
+        private bool IsUsingMouseOrStylus()
+        {
+            var device = Stylus.CurrentStylusDevice;
+            if (device is null)
             {
-                var position = e.GetPosition(element);
-                brush.GradientOrigin = position;
-                brush.Center = position;
+                return true;
             }
 
-            void OnClosed(object o, EventArgs eventArgs)
+            if (device.TabletDevice.Type == TabletDeviceType.Stylus)
             {
-                window.MouseMove -= OnMouseMove;
-                window.Closed -= OnClosed;
+                return true;
             }
+
+            return false;
         }
     }
 }

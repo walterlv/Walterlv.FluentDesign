@@ -6,7 +6,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>walterlv</Authors>
         <Company>dotnet Campus</Company>
-        <Version>0.1.0-alpha</Version>
+        <Version>0.2.0-alpha</Version>
     </PropertyGroup>
 
     <ItemGroup>
